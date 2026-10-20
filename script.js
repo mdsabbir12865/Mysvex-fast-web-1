@@ -1,0 +1,406 @@
+document.addEventListener('DOMContentLoaded', () => {
+    // Shared Data Store
+    let products = [
+        { id: 1, name: "Eternal Solitaire Ring", price: 1250, category: "rings", img: "https://images.unsplash.com/photo-1605100804763-247f67b3557e?auto=format&fit=crop&q=80&w=500", desc: "1.5ct brilliant-cut diamond in 18k white gold.", metal: "18K White Gold", weight: "4.8g", stone: "1.5ct Diamond" },
+        { id: 2, name: "Crescent Gold Pendant", price: 850, category: "necklaces", img: "https://images.unsplash.com/photo-1599643478518-a784e5dc4c8f?auto=format&fit=crop&q=80&w=500", desc: "Celestial beauty carved from 22k yellow gold.", metal: "22K Yellow Gold", weight: "8.2g", stone: "None" },
+        { id: 3, name: "Sapphire Drop Earrings", price: 1800, category: "earrings", img: "https://images.unsplash.com/photo-1535633302704-b042cda6c677?auto=format&fit=crop&q=80&w=500", desc: "Blue sapphires in elegant platinum drop design.", metal: "Platinum 950", weight: "6.5g", stone: "Sapphire" }
+    ];
+
+    let cart = [];
+    let orders = [];
+    let currentUser = null;
+
+    // Elements
+    const productListContainer = document.getElementById('product-list-container');
+    const cartCountLabel = document.querySelector('.cart-count');
+    const totalAmountSpan = document.querySelector('.total-amount');
+    const cartItemsContainer = document.querySelector('.cart-items');
+    const cartSidebar = document.querySelector('.cart-sidebar');
+    const overlay = document.querySelector('.overlay');
+
+    // UI Rendering
+    function renderProducts(filter = 'all') {
+        if (!productListContainer) return;
+        productListContainer.innerHTML = '';
+        const filtered = products.filter(p => filter === 'all' || p.category === filter);
+
+        filtered.forEach(p => {
+            const card = document.createElement('article');
+            card.className = 'product-card';
+            card.innerHTML = `
+                <div class="product-img">
+                    <img src="${p.img}" alt="${p.name}">
+                    <button class="add-to-cart-btn" data-id="${p.id}">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg>
+                    </button>
+                </div>
+                <div class="product-info">
+                    <h3>${p.name}</h3>
+                    <p>${p.desc}</p>
+                    <div class="price-container">$${parseFloat(p.price).toFixed(2)}</div>
+                </div>
+            `;
+            card.addEventListener('click', () => showProductDetails(p.id));
+            card.querySelector('.add-to-cart-btn').addEventListener('click', (e) => {
+                e.stopPropagation();
+                addToCart(p.id);
+            });
+            productListContainer.appendChild(card);
+        });
+    }
+
+    function showProductDetails(id) {
+        const p = products.find(x => x.id == id);
+        if(!p) return;
+        document.getElementById('p-detail-img').src = p.img;
+        document.getElementById('p-detail-name').innerText = p.name;
+        document.getElementById('p-detail-price-now').innerText = `$${parseFloat(p.price).toFixed(2)}`;
+        document.getElementById('p-detail-desc').innerText = p.desc;
+        document.getElementById('p-detail-category').innerText = p.category;
+        document.getElementById('p-detail-metal').innerText = p.metal || '--';
+        document.getElementById('p-detail-weight').innerText = p.weight || '--';
+        document.getElementById('p-detail-stone').innerText = p.stone || '--';
+        
+        const addBtn = document.getElementById('p-detail-add-btn');
+        const newBtn = addBtn.cloneNode(true);
+        addBtn.parentNode.replaceChild(newBtn, addBtn);
+        newBtn.addEventListener('click', () => { addToCart(p.id); document.getElementById('product-detail-modal').classList.remove('active'); });
+
+        document.getElementById('product-detail-modal').classList.add('active');
+    }
+
+    function addToCart(id) {
+        const p = products.find(x => x.id == id);
+        const existing = cart.find(i => i.id == id);
+        if (existing) existing.quantity++;
+        else cart.push({ ...p, quantity: 1 });
+        updateCartUI();
+        cartSidebar.classList.add('open');
+        overlay.classList.add('active');
+    }
+
+    function updateCartUI() {
+        const count = cart.reduce((acc, item) => acc + item.quantity, 0);
+        cartCountLabel.textContent = count;
+        cartItemsContainer.innerHTML = '';
+        let total = 0;
+        cart.forEach(item => {
+            total += item.price * item.quantity;
+            const div = document.createElement('div');
+            div.className = 'cart-item';
+            div.innerHTML = `
+                <img src="${item.img}">
+                <div style="flex:1;">
+                    <h4 style="font-size:0.8rem;">${item.name}</h4>
+                    <span style="font-size:0.7rem; color:var(--accent);">$${parseFloat(item.price).toFixed(2)} x ${item.quantity}</span>
+                </div>
+            `;
+            cartItemsContainer.appendChild(div);
+        });
+        totalAmountSpan.textContent = `$${total.toFixed(2)}`;
+        document.getElementById('cart-auth-warning').style.display = currentUser ? 'none' : 'block';
+    }
+
+    // Client Dashboard & Profile
+    function renderClientDashboard() {
+        if (!currentUser) return;
+        const userOrders = orders.filter(o => o.userEmail === currentUser.email);
+        const confirmed = userOrders.filter(o => o.status === 'Confirmed').length;
+        
+        document.getElementById('stat-total-orders').innerText = userOrders.length;
+        document.getElementById('stat-confirmed-orders').innerText = confirmed;
+        
+        const list = document.getElementById('client-order-list');
+        list.innerHTML = '';
+        if (userOrders.length === 0) {
+            list.innerHTML = '<p style="text-align:center; font-size:0.8rem; color:#ccc; padding:2rem;">No orders yet.</p>';
+        } else {
+            userOrders.slice().reverse().forEach(o => {
+                const div = document.createElement('div');
+                div.className = 'order-card';
+                div.innerHTML = `
+                    <div>
+                        <div style="font-size:0.75rem; font-weight:700;">#ORD-${o.id}</div>
+                        <div style="font-size:0.65rem; color:var(--text-muted);">${o.itemsCount} items — $${o.total.toFixed(2)}</div>
+                    </div>
+                    <span class="order-badge badge-${o.status.toLowerCase()}">${o.status}</span>
+                `;
+                list.appendChild(div);
+            });
+        }
+    }
+
+    // Admin Functionality
+    function renderAdminInventory() {
+        const list = document.querySelector('.admin-product-list');
+        list.innerHTML = '';
+        products.forEach(p => {
+            const row = document.createElement('div');
+            row.className = 'admin-product-item';
+            row.innerHTML = `
+                <div style="display:flex; flex-direction:column; align-items:center; gap:5px;">
+                    <img src="${p.img}">
+                    <input type="text" class="adm-input" value="${p.img}" data-key="img" data-id="${p.id}" style="font-size:10px; width:60px; padding:2px;" placeholder="URL">
+                </div>
+                <div style="display:flex; flex-direction:column; gap:5px;">
+                    <input type="text" class="adm-input" value="${p.name}" data-key="name" data-id="${p.id}" placeholder="Name">
+                    <input type="number" class="adm-input" value="${p.price}" data-key="price" data-id="${p.id}" placeholder="Price">
+                    <textarea class="adm-input" data-key="desc" data-id="${p.id}" rows="2" placeholder="Description">${p.desc}</textarea>
+                </div>
+                <div style="display:flex; flex-direction:column; gap:5px;">
+                    <input type="text" class="adm-input" value="${p.metal || ''}" placeholder="Metal" data-key="metal" data-id="${p.id}">
+                    <input type="text" class="adm-input" value="${p.weight || ''}" placeholder="Weight" data-key="weight" data-id="${p.id}">
+                    <input type="text" class="adm-input" value="${p.stone || ''}" placeholder="Stone" data-key="stone" data-id="${p.id}">
+                </div>
+                <div style="display:flex; flex-direction:column; gap:5px;">
+                    <button class="btn btn-primary adm-save-btn" data-id="${p.id}" style="padding:0.6rem; font-size:0.65rem; width:100%;">SAVE EDITS</button>
+                    <button class="btn btn-outline adm-del-btn" data-id="${p.id}" style="padding:0.6rem; font-size:0.65rem; width:100%; border-color:#fee2e2; color:#ef4444;">DELETE</button>
+                </div>
+            `;
+            list.appendChild(row);
+        });
+
+        // Add save listeners
+        document.querySelectorAll('.adm-save-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                const id = btn.dataset.id;
+                const row = btn.closest('.admin-product-item');
+                const inputs = row.querySelectorAll('.adm-input');
+                const p = products.find(x => x.id == id);
+                inputs.forEach(input => {
+                    const key = input.dataset.key;
+                    p[key] = key === 'price' ? parseFloat(input.value) : input.value;
+                });
+                renderProducts(); // Update front-end
+                alert('Success: All product information has been updated and saved.');
+            });
+        });
+
+        // Add delete listeners
+        document.querySelectorAll('.adm-del-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                if(confirm('Are you sure you want to remove this masterpiece?')) {
+                    const id = btn.dataset.id;
+                    products = products.filter(x => x.id != id);
+                    renderAdminInventory();
+                    renderProducts();
+                }
+            });
+        });
+    }
+
+    function renderAdminOrders() {
+        const list = document.getElementById('admin-order-list');
+        document.getElementById('admin-order-badge').innerText = orders.length;
+        list.innerHTML = '';
+        orders.forEach(o => {
+            const row = document.createElement('div');
+            row.style = 'display:grid; grid-template-columns: 80px 1.5fr 1fr 100px 100px; padding:1rem; border-bottom:1px solid #eee; align-items:center; font-size:0.8rem;';
+            row.innerHTML = `
+                <span style="font-weight:700;">#${o.id}</span>
+                <div style="line-height:1.2;">
+                    <div style="font-weight:700;">${o.userName}</div>
+                    <div style="font-size:0.65rem; color:var(--text-muted);">${o.userEmail}</div>
+                </div>
+                <div style="font-weight:700;">$${o.total.toFixed(2)}</div>
+                <span class="order-badge badge-${o.status.toLowerCase()}">${o.status}</span>
+                <div>
+                    ${o.status === 'Pending' ? `<button class="btn btn-primary adm-confirm-btn" data-id="${o.id}" style="padding:0.4rem 0.8rem; font-size:0.6rem;">CONFIRM</button>` : '<span style="color:#22c55e; font-size:0.6rem; font-weight:700;">ACTIONED</span>'}
+                </div>
+            `;
+            list.appendChild(row);
+        });
+
+        document.querySelectorAll('.adm-confirm-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                const o = orders.find(x => x.id == btn.dataset.id);
+                if(o) {
+                    o.status = 'Confirmed';
+                    renderAdminOrders();
+                    renderClientDashboard();
+                    alert(`Order #${o.id} confirmed successfully.`);
+                }
+            });
+        });
+    }
+
+    // Event Handlers
+    document.getElementById('admin-pass-form').addEventListener('submit', (e) => {
+        e.preventDefault();
+        const key = document.getElementById('admin-pass-input').value;
+        if (key === "sabbir+mahi") {
+            document.getElementById('admin-login-view').style.display = 'none';
+            document.getElementById('admin-dashboard-view').style.display = 'block';
+            document.querySelector('.admin-sidebar').style.display = 'flex';
+            renderAdminInventory();
+            renderAdminOrders();
+        } else {
+            document.getElementById('admin-error').style.display = 'block';
+        }
+    });
+
+    document.getElementById('add-new-product-btn').addEventListener('click', () => {
+        const name = document.getElementById('new-p-name').value;
+        const price = document.getElementById('new-p-price').value;
+        const cat = document.getElementById('new-p-category').value;
+        const img = document.getElementById('new-p-img').value || 'https://images.unsplash.com/photo-1515562141207-7a88fb7ce338?auto=format&fit=crop&q=80&w=500';
+        const metal = document.getElementById('new-p-metal').value;
+        const weight = document.getElementById('new-p-weight').value;
+        const stone = document.getElementById('new-p-stone').value;
+        const desc = document.getElementById('new-p-desc').value || 'Exquisite masterpiece from our latest boutique collection.';
+
+        if(name && price) {
+            products.push({ 
+                id: Date.now(), 
+                name, 
+                price: parseFloat(price), 
+                category: cat,
+                img, 
+                metal, 
+                weight, 
+                stone, 
+                desc 
+            });
+            renderAdminInventory();
+            renderProducts();
+            
+            // Clear fields
+            ['new-p-name', 'new-p-price', 'new-p-img', 'new-p-metal', 'new-p-weight', 'new-p-stone', 'new-p-desc'].forEach(id => {
+                document.getElementById(id).value = '';
+            });
+            alert('Product added successfully!');
+        } else {
+            alert('Please provide at least a name and a price.');
+        }
+    });
+
+    document.getElementById('checkout-form').addEventListener('submit', (e) => {
+        e.preventDefault();
+        if(!currentUser) {
+            document.getElementById('auth-modal').classList.add('active');
+            document.getElementById('auth-message-notice').style.display = 'block';
+            return;
+        }
+        const total = cart.reduce((acc, i) => acc + (i.price * i.quantity), 0);
+        const orderId = Math.floor(1000 + Math.random() * 9000);
+        orders.push({
+            id: orderId,
+            userEmail: currentUser.email,
+            userName: currentUser.name,
+            total: total,
+            status: 'Pending',
+            itemsCount: cart.length
+        });
+        
+        document.getElementById('order-id-display').innerText = `#ORD-${orderId}`;
+        cart = [];
+        updateCartUI();
+        document.querySelector('.checkout-view').classList.remove('active');
+        document.querySelector('.success-view').classList.add('active');
+        document.querySelector('.cart-footer').style.display = 'none';
+        renderClientDashboard();
+        renderAdminOrders();
+    });
+
+    document.getElementById('login-form').addEventListener('submit', (e) => {
+        e.preventDefault();
+        const email = document.getElementById('l-email').value;
+        currentUser = { email: email, name: email.split('@')[0].toUpperCase() };
+        document.getElementById('user-status-dot').style.display = 'block';
+        document.getElementById('profile-display-name').innerText = currentUser.name;
+        document.getElementById('profile-display-email').innerText = currentUser.email;
+        document.getElementById('auth-modal').classList.remove('active');
+        renderClientDashboard();
+        updateCartUI();
+    });
+
+    document.getElementById('user-profile-btn').addEventListener('click', () => {
+        if(currentUser) {
+            renderClientDashboard();
+            document.getElementById('profile-modal').classList.add('active');
+        } else {
+            document.getElementById('auth-modal').classList.add('active');
+        }
+    });
+
+    document.getElementById('logout-btn').addEventListener('click', () => {
+        currentUser = null;
+        document.getElementById('user-status-dot').style.display = 'none';
+        document.getElementById('profile-modal').classList.remove('active');
+        updateCartUI();
+    });
+
+    // Navigation and Toggles
+    document.querySelector('.checkout-init-btn').addEventListener('click', () => {
+        if(!currentUser) {
+            document.getElementById('auth-modal').classList.add('active');
+            document.getElementById('auth-message-notice').style.display = 'block';
+            return;
+        }
+        if(cart.length === 0) {
+            alert('Your collection is empty.');
+            return;
+        }
+        document.querySelector('.cart-view').classList.remove('active');
+        document.querySelector('.checkout-view').classList.add('active');
+        document.querySelector('.cart-footer').style.display = 'none';
+    });
+
+    document.querySelector('.back-to-cart').addEventListener('click', () => {
+        document.querySelector('.checkout-view').classList.remove('active');
+        document.querySelector('.cart-view').classList.add('active');
+        document.querySelector('.cart-footer').style.display = 'block';
+    });
+
+    document.querySelector('.close-after-success').addEventListener('click', () => {
+        cartSidebar.classList.remove('open');
+        overlay.classList.remove('active');
+        setTimeout(() => {
+            document.querySelector('.success-view').classList.remove('active');
+            document.querySelector('.cart-view').classList.add('active');
+            document.querySelector('.cart-footer').style.display = 'block';
+        }, 500);
+    });
+
+    document.getElementById('admin-trigger').addEventListener('click', () => document.getElementById('admin-modal').classList.add('active'));
+    document.querySelector('.cart-toggle').addEventListener('click', () => { cartSidebar.classList.add('open'); overlay.classList.add('active'); });
+    document.querySelector('.cart-close').addEventListener('click', () => { cartSidebar.classList.remove('open'); overlay.classList.remove('active'); });
+    document.querySelectorAll('.modal-close').forEach(b => b.addEventListener('click', () => document.querySelectorAll('.modal-overlay').forEach(m => m.classList.remove('active'))));
+
+    // Admin Sidebar Tabs
+    document.querySelectorAll('.admin-nav-item').forEach(btn => {
+        btn.addEventListener('click', () => {
+            document.querySelectorAll('.admin-nav-item').forEach(b => b.classList.remove('active'));
+            document.querySelectorAll('.admin-section').forEach(s => s.classList.remove('active'));
+            btn.classList.add('active');
+            const view = btn.dataset.view;
+            document.getElementById(`admin-${view}-section`).classList.add('active');
+            document.getElementById('admin-view-title').innerText = view === 'inventory' ? 'Inventory Management' : 'Order Requests';
+        });
+    });
+
+    // Logout Admin
+    document.getElementById('admin-logout').addEventListener('click', () => {
+        document.getElementById('admin-login-view').style.display = 'block';
+        document.getElementById('admin-dashboard-view').style.display = 'none';
+        document.querySelector('.admin-sidebar').style.display = 'none';
+        document.getElementById('admin-pass-input').value = '';
+    });
+
+    // Filter Buttons
+    document.querySelectorAll('.filter-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+            document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            renderProducts(btn.dataset.filter);
+        });
+    });
+
+    // Initial Load
+    renderProducts();
+});
+
+window.addEventListener('scroll', () => {
+    if (window.scrollY > 50) document.querySelector('.header').classList.add('scrolled');
+    else document.querySelector('.header').classList.remove('scrolled');
+});
