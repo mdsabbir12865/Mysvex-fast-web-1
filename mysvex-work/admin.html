@@ -6,16 +6,18 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="admin.css">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="supabase-config.js"></script>
 </head>
 <body>
   <div class="login-wrap" id="login-wrap">
     <form class="login-card" id="admin-login-form">
       <div class="brand-mark">M</div><p class="eyebrow">MYSVEX · PRIVATE ACCESS</p>
-      <h1>Admin sign in</h1><p class="muted">Manage your local demo data, orders and clients.</p>
-      <label for="admin-password">Admin password</label><input id="admin-password" type="password" required autocomplete="current-password" placeholder="Enter admin password">
-      <button class="btn primary full" type="submit">Unlock dashboard <span>→</span></button>
+      <h1>Admin sign in</h1><p class="muted">Sign in with your Mysvex Supabase Auth admin account.</p>
+      <label for="admin-email">Admin email</label><input id="admin-email" type="email" required autocomplete="username" placeholder="admin@example.com"><label for="admin-password">Password</label><input id="admin-password" type="password" required autocomplete="current-password" placeholder="Supabase Auth password">
+      <button class="btn primary full" type="submit">Sign in <span>→</span></button>
       <p class="error" id="login-error" aria-live="polite"></p>
-      <p class="security-note">Local-only version: this password is not secure authentication. Do not use this setup for real customer data.</p>
+      <p class="security-note">Access is granted only to authenticated users with the admin role in Supabase profiles.</p>
     </form>
   </div>
   <div class="app hidden" id="app">
@@ -29,26 +31,26 @@
         <button class="nav-item" data-tab="products"><span>◇</span> Products</button>
         <button class="nav-item" data-tab="history"><span>↺</span> Order history</button>
       </nav>
-      <div class="sidebar-bottom"><div class="local-pill"><span></span> Browser storage mode</div><button id="logout" class="nav-item logout"><span>↪</span> Lock dashboard</button></div>
+      <div class="sidebar-bottom"><div class="local-pill"><span></span> Supabase cloud mode</div><button id="logout" class="nav-item logout"><span>↪</span> Lock dashboard</button></div>
     </aside>
     <main class="main">
-      <header class="topbar"><div><p class="eyebrow" id="today-label">BUSINESS OVERVIEW</p><h1 id="page-title">Good to see you.</h1></div><div class="top-actions"><button class="btn ghost" id="export-btn">↓ Export backup</button><button class="avatar" title="Admin">A</button></div></header>
-      <div class="notice"><b>Important:</b> This version stores data in this browser's <code>localStorage</code>. It does not sync customers from other devices or browsers, and is not secure against technical users. See README before going live.</div>
+      <header class="topbar"><div><p class="eyebrow" id="today-label">BUSINESS OVERVIEW</p><h1 id="page-title">Good to see you.</h1></div><div class="top-actions"><button class="avatar" title="Admin">A</button></div></header>
+      <div class="notice"><b>Important:</b> Orders, profiles and status history load from Supabase. Product catalogue editing remains local until a products table is connected.</div>
       <section class="page active" id="page-overview">
         <div class="welcome"><div><p class="eyebrow light">YOUR BUSINESS AT A GLANCE</p><h2>Make every order<br>feel exceptional.</h2><p>Review requests, approve orders, and keep your catalogue organized.</p><button class="btn light-btn" data-goto="orders">Review orders <span>→</span></button></div><div class="welcome-art"><div class="orb orb-one"></div><div class="orb orb-two"></div><div class="gem">✧</div><span>ATELIER<br>COLLECTION</span></div></div>
         <div class="stats-grid">
-          <article class="stat-card"><div class="stat-top"><span>Total clients</span><span class="stat-icon">♙</span></div><strong id="stat-clients">0</strong><small>Registered in this browser</small></article>
-          <article class="stat-card"><div class="stat-top"><span>Total orders</span><span class="stat-icon">▣</span></div><strong id="stat-orders">0</strong><small>All recorded orders</small></article>
+          <article class="stat-card"><div class="stat-top"><span>Total clients</span><span class="stat-icon">♙</span></div><strong id="stat-clients">0</strong><small>Registered in Supabase</small></article>
+          <article class="stat-card"><div class="stat-top"><span>Total orders</span><span class="stat-icon">▣</span></div><strong id="stat-orders">0</strong><small>Stored in Supabase</small></article>
           <article class="stat-card warm"><div class="stat-top"><span>Awaiting approval</span><span class="stat-icon">◷</span></div><strong id="stat-pending">0</strong><small>Needs your attention</small></article>
           <article class="stat-card"><div class="stat-top"><span>Confirmed</span><span class="stat-icon">✓</span></div><strong id="stat-confirmed">0</strong><small>Approved orders</small></article>
         </div>
         <div class="content-card"><div class="card-heading"><div><p class="eyebrow">LATEST ACTIVITY</p><h3>Recent orders</h3></div><button class="text-btn" data-goto="orders">View all →</button></div><div id="recent-orders" class="table-wrap"></div></div>
-        <div class="bottom-grid"><div class="content-card"><div class="card-heading"><div><p class="eyebrow">QUICK ACTIONS</p><h3>Manage your store</h3></div></div><div class="quick-actions"><button data-goto="orders"><span>▣</span><b>Approve orders</b><small>Review pending requests</small></button><button data-goto="clients"><span>♙</span><b>Manage clients</b><small>Search and update accounts</small></button><button data-goto="products"><span>◇</span><b>Edit catalogue</b><small>Update products and prices</small></button></div></div><div class="content-card backup-card"><p class="eyebrow">DATA SAFETY</p><h3>Keep a backup</h3><p class="muted">Download a JSON copy of your clients, products, orders and order history.</p><button class="btn primary full" id="backup-btn">Export data backup ↓</button><label class="btn ghost full import-label">Import backup ↑<input type="file" id="import-file" accept="application/json"></label></div></div>
+        <div class="bottom-grid"><div class="content-card"><div class="card-heading"><div><p class="eyebrow">QUICK ACTIONS</p><h3>Manage your store</h3></div></div><div class="quick-actions"><button data-goto="orders"><span>▣</span><b>Approve orders</b><small>Review pending requests</small></button><button data-goto="clients"><span>♙</span><b>Manage clients</b><small>Search and update accounts</small></button><button data-goto="products"><span>◇</span><b>Edit catalogue</b><small>Update products and prices</small></button></div></div><div class="content-card backup-card"><p class="eyebrow">DATA SAFETY</p><h3>Keep a backup</h3><p class="muted">Orders and history are stored in Supabase. Export feature is not enabled in this connected edition.</p><button class="btn primary full" id="backup-btn">Export data backup ↓</button><label class="btn ghost full import-label">Import backup ↑<input type="file" id="import-file" accept="application/json"></label></div></div>
       </section>
       <section class="page" id="page-orders"><div class="page-intro"><div><p class="eyebrow">ORDER MANAGEMENT</p><h2>Orders</h2><p class="muted">Approve or reject customer requests and track their current status.</p></div><div class="filter-row"><input id="order-search" class="search" placeholder="Search order or client…"><select id="order-filter"><option value="all">All statuses</option><option value="Pending">Pending</option><option value="Confirmed">Confirmed</option><option value="Rejected">Rejected</option></select></div></div><div class="content-card"><div id="orders-table" class="table-wrap"></div></div></section>
       <section class="page" id="page-clients"><div class="page-intro"><div><p class="eyebrow">CUSTOMER DIRECTORY</p><h2>Clients</h2><p class="muted">Search customer accounts and enable or disable local demo accounts.</p></div><input id="client-search" class="search" placeholder="Search name, email or ID…"></div><div class="content-card"><div id="clients-table" class="table-wrap"></div></div></section>
       <section class="page" id="page-products"><div class="page-intro"><div><p class="eyebrow">CATALOGUE MANAGEMENT</p><h2>Products</h2><p class="muted">Add new products or edit the current catalogue saved in this browser.</p></div></div><div class="content-card"><form id="product-form" class="product-form"><input type="hidden" id="product-id"><div class="form-title"><h3 id="product-form-title">Add a product</h3><button type="button" class="text-btn" id="reset-product">Clear form</button></div><div class="form-grid"><label>Product name<input id="p-name" required placeholder="Product name"></label><label>Price (USD)<input id="p-price" required min="0" step="0.01" type="number" placeholder="0.00"></label><label>Category<select id="p-category"><option value="rings">Rings</option><option value="necklaces">Necklaces</option><option value="earrings">Earrings</option></select></label><label>Image URL<input id="p-img" type="url" placeholder="https://…"></label><label>Metal<input id="p-metal" placeholder="18K gold"></label><label>Weight<input id="p-weight" placeholder="4.8g"></label><label>Stone<input id="p-stone" placeholder="Diamond"></label><label class="span-2">Description<textarea id="p-desc" rows="2" placeholder="Product details"></textarea></label></div><button class="btn primary" type="submit">Save product</button></form></div><div class="content-card"><div class="card-heading"><div><p class="eyebrow">LIVE CATALOGUE</p><h3>All products</h3></div><span class="count-label" id="product-count">0 products</span></div><div id="products-table" class="table-wrap"></div></div></section>
-      <section class="page" id="page-history"><div class="page-intro"><div><p class="eyebrow">AUDIT TRAIL</p><h2>Order history</h2><p class="muted">Status changes recorded by this browser. Keep regular backups.</p></div><input id="history-search" class="search" placeholder="Search order or client…"></div><div class="content-card"><div id="history-table" class="table-wrap"></div></div></section>
+      <section class="page" id="page-history"><div class="page-intro"><div><p class="eyebrow">AUDIT TRAIL</p><h2>Order history</h2><p class="muted">Status changes recorded in Supabase order_history.</p></div><input id="history-search" class="search" placeholder="Search order or client…"></div><div class="content-card"><div id="history-table" class="table-wrap"></div></div></section>
       <footer class="footer">Mysvex Admin Studio <span>·</span> Local browser edition</footer>
     </main>
   </div>

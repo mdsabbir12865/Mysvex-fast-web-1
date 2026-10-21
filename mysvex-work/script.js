@@ -15,6 +15,7 @@ document.addEventListener('DOMContentLoaded', () => {
     let store = readStore();
     if (Array.isArray(store.products) && store.products.length) products = store.products;
     let cart = [];
+    window.mysvexCart = cart;
     let orders = Array.isArray(store.orders) ? store.orders : [];
     let users = Array.isArray(store.users) ? store.users : [];
     let orderHistory = Array.isArray(store.orderHistory) ? store.orderHistory : [];
@@ -332,6 +333,7 @@ document.addEventListener('DOMContentLoaded', () => {
         
         document.getElementById('order-id-display').innerText = `#ORD-${orderId}`;
         cart = [];
+        window.mysvexCart = cart;
         updateCartUI();
         document.querySelector('.checkout-view').classList.remove('active');
         document.querySelector('.success-view').classList.add('active');
