@@ -6,9 +6,36 @@ document.addEventListener('DOMContentLoaded', () => {
         { id: 3, name: "Sapphire Drop Earrings", price: 1800, category: "earrings", img: "https://images.unsplash.com/photo-1535633302704-b042cda6c677?auto=format&fit=crop&q=80&w=500", desc: "Blue sapphires in elegant platinum drop design.", metal: "Platinum 950", weight: "6.5g", stone: "Sapphire" }
     ];
 
+    // Shared browser store. This keeps data across reloads on THIS browser only.
+    const STORE_KEY = 'mysvex_store_v1';
+    function readStore() {
+        try { return JSON.parse(localStorage.getItem(STORE_KEY) || '{}'); }
+        catch (_) { return {}; }
+    }
+    let store = readStore();
+    if (Array.isArray(store.products) && store.products.length) products = store.products;
     let cart = [];
-    let orders = [];
+    let orders = Array.isArray(store.orders) ? store.orders : [];
+    let users = Array.isArray(store.users) ? store.users : [];
+    let orderHistory = Array.isArray(store.orderHistory) ? store.orderHistory : [];
     let currentUser = null;
+    function persistStore() {
+        try {
+            localStorage.setItem(STORE_KEY, JSON.stringify({ products, orders, users, orderHistory }));
+            return true;
+        } catch (err) {
+            console.error('Could not save Mysvex data:', err);
+            alert('Browser storage is full or unavailable. Please export your data and try again.');
+            return false;
+        }
+    }
+    function addOrderHistory(order, oldStatus, newStatus, actor='Admin') {
+        orderHistory.push({ id: Date.now() + Math.random(), orderId: order.id,
+            clientEmail: order.userEmail, from: oldStatus, to: newStatus,
+            actor, at: new Date().toISOString() });
+        persistStore();
+    }
+    persistStore();
 
     // Elements
     const productListContainer = document.getElementById('product-list-container');
@@ -171,8 +198,9 @@ document.addEventListener('DOMContentLoaded', () => {
                     const key = input.dataset.key;
                     p[key] = key === 'price' ? parseFloat(input.value) : input.value;
                 });
+                persistStore();
                 renderProducts(); // Update front-end
-                alert('Success: All product information has been updated and saved.');
+                alert('Product information saved in this browser.');
             });
         });
 
@@ -182,6 +210,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 if(confirm('Are you sure you want to remove this masterpiece?')) {
                     const id = btn.dataset.id;
                     products = products.filter(x => x.id != id);
+                    persistStore();
                     renderAdminInventory();
                     renderProducts();
                 }
@@ -215,7 +244,10 @@ document.addEventListener('DOMContentLoaded', () => {
             btn.addEventListener('click', () => {
                 const o = orders.find(x => x.id == btn.dataset.id);
                 if(o) {
+                    const previous = o.status;
                     o.status = 'Confirmed';
+                    o.updatedAt = new Date().toISOString();
+                    addOrderHistory(o, previous, 'Confirmed');
                     renderAdminOrders();
                     renderClientDashboard();
                     alert(`Order #${o.id} confirmed successfully.`);
@@ -261,6 +293,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 stone, 
                 desc 
             });
+            persistStore();
             renderAdminInventory();
             renderProducts();
             
@@ -282,15 +315,20 @@ document.addEventListener('DOMContentLoaded', () => {
             return;
         }
         const total = cart.reduce((acc, i) => acc + (i.price * i.quantity), 0);
-        const orderId = Math.floor(1000 + Math.random() * 9000);
+        const orderId = Date.now();
         orders.push({
             id: orderId,
             userEmail: currentUser.email,
             userName: currentUser.name,
             total: total,
             status: 'Pending',
-            itemsCount: cart.length
+            itemsCount: cart.reduce((n, item) => n + item.quantity, 0),
+            items: cart.map(item => ({ id: item.id, name: item.name, price: item.price, quantity: item.quantity })),
+            createdAt: new Date().toISOString(),
+            updatedAt: new Date().toISOString()
         });
+        addOrderHistory(orders[orders.length - 1], null, 'Pending', 'Client');
+        persistStore();
         
         document.getElementById('order-id-display').innerText = `#ORD-${orderId}`;
         cart = [];
@@ -302,16 +340,50 @@ document.addEventListener('DOMContentLoaded', () => {
         renderAdminOrders();
     });
 
-    document.getElementById('login-form').addEventListener('submit', (e) => {
+    document.getElementById('register-form').addEventListener('submit', (e) => {
         e.preventDefault();
-        const email = document.getElementById('l-email').value;
-        currentUser = { email: email, name: email.split('@')[0].toUpperCase() };
+        const name = document.getElementById('r-name').value.trim();
+        const email = document.getElementById('r-email').value.trim().toLowerCase();
+        const password = document.getElementById('r-pass').value;
+        const errorBox = document.getElementById('auth-error-msg');
+        if (users.some(u => u.email === email)) {
+            errorBox.textContent = 'An account with this email already exists.';
+            errorBox.style.display = 'block'; return;
+        }
+        // NOTE: local-only demo storage; passwords are not safe for a real public business site.
+        users.push({ id: 'CL-' + Date.now().toString(36).toUpperCase(), name, email, password, createdAt: new Date().toISOString(), status: 'Active' });
+        persistStore();
+        currentUser = { name, email };
         document.getElementById('user-status-dot').style.display = 'block';
         document.getElementById('profile-display-name').innerText = currentUser.name;
         document.getElementById('profile-display-email').innerText = currentUser.email;
         document.getElementById('auth-modal').classList.remove('active');
-        renderClientDashboard();
-        updateCartUI();
+        errorBox.style.display = 'none';
+        renderClientDashboard(); updateCartUI();
+        alert('Account created in this browser. This is not secure account authentication.');
+    });
+
+    document.getElementById('login-form').addEventListener('submit', (e) => {
+        e.preventDefault();
+        const email = document.getElementById('l-email').value.trim().toLowerCase();
+        const password = document.getElementById('l-pass').value;
+        const user = users.find(u => u.email === email && u.password === password);
+        const errorBox = document.getElementById('auth-error-msg');
+        if (!user) {
+            errorBox.textContent = 'Account not found or password is incorrect. Register first.';
+            errorBox.style.display = 'block'; return;
+        }
+        if (user.status === 'Disabled') {
+            errorBox.textContent = 'This account is disabled. Please contact the business.';
+            errorBox.style.display = 'block'; return;
+        }
+        currentUser = { email: user.email, name: user.name, id: user.id };
+        document.getElementById('user-status-dot').style.display = 'block';
+        document.getElementById('profile-display-name').innerText = currentUser.name;
+        document.getElementById('profile-display-email').innerText = currentUser.email;
+        document.getElementById('auth-modal').classList.remove('active');
+        errorBox.style.display = 'none';
+        renderClientDashboard(); updateCartUI();
     });
 
     document.getElementById('user-profile-btn').addEventListener('click', () => {
@@ -394,6 +466,21 @@ document.addEventListener('DOMContentLoaded', () => {
             btn.classList.add('active');
             renderProducts(btn.dataset.filter);
         });
+    });
+
+    // Keep open tabs in sync when the local demo store changes in another tab.
+    window.addEventListener('storage', (event) => {
+        if (event.key !== 'mysvex_store_v1') return;
+        try {
+            const latest = JSON.parse(event.newValue || '{}');
+            if (Array.isArray(latest.products)) products = latest.products;
+            if (Array.isArray(latest.orders)) orders = latest.orders;
+            if (Array.isArray(latest.users)) users = latest.users;
+            if (Array.isArray(latest.orderHistory)) orderHistory = latest.orderHistory;
+            renderProducts();
+            renderAdminOrders();
+            if (currentUser) renderClientDashboard();
+        } catch (err) { console.warn('Could not refresh local data', err); }
     });
 
     // Initial Load
