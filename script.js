@@ -493,3 +493,27 @@ window.addEventListener('scroll', () => {
     if (window.scrollY > 50) document.querySelector('.header').classList.add('scrolled');
     else document.querySelector('.header').classList.remove('scrolled');
 });
+
+// Mobile navigation and small-screen UX enhancements
+document.addEventListener('DOMContentLoaded', () => {
+  const menuButton = document.querySelector('.mobile-menu-btn');
+  const navLinks = document.querySelector('.nav-links');
+  if (menuButton && navLinks) {
+    menuButton.setAttribute('aria-expanded', 'false');
+    menuButton.addEventListener('click', () => {
+      const isOpen = navLinks.classList.toggle('mobile-open');
+      menuButton.setAttribute('aria-expanded', String(isOpen));
+      menuButton.setAttribute('aria-label', isOpen ? 'Close navigation menu' : 'Open navigation menu');
+    });
+    navLinks.querySelectorAll('a').forEach(link => link.addEventListener('click', () => {
+      navLinks.classList.remove('mobile-open');
+      menuButton.setAttribute('aria-expanded', 'false');
+    }));
+    document.addEventListener('click', event => {
+      if (!navLinks.contains(event.target) && !menuButton.contains(event.target)) {
+        navLinks.classList.remove('mobile-open');
+        menuButton.setAttribute('aria-expanded', 'false');
+      }
+    });
+  }
+});
