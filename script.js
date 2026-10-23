@@ -532,3 +532,31 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 });
+
+
+// Mysvex auth tab switcher: explicitly reveal Login or Registration form.
+document.addEventListener('DOMContentLoaded', () => {
+  const tabs = document.querySelectorAll('.auth-tab[data-tab]');
+  const forms = document.querySelectorAll('.auth-form-content');
+  tabs.forEach(tab => {
+    tab.addEventListener('click', () => {
+      const target = tab.dataset.tab;
+      tabs.forEach(t => {
+        const active = t === tab;
+        t.classList.toggle('active', active);
+        t.setAttribute('aria-selected', String(active));
+      });
+      forms.forEach(form => {
+        const active = (target === 'login' && form.id === 'login-form') ||
+                       (target === 'register' && form.id === 'register-form');
+        form.classList.toggle('active', active);
+        form.hidden = !active;
+      });
+      const err = document.getElementById('auth-error-msg');
+      if (err) { err.style.display = 'none'; err.textContent = ''; }
+    });
+  });
+  // Ensure the initial visible form matches the active tab.
+  const activeTab = document.querySelector('.auth-tab.active') || tabs[0];
+  if (activeTab) activeTab.click();
+});
