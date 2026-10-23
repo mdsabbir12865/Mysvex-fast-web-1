@@ -1,4 +1,4 @@
 // Mysvex public Supabase client config. Publishable key is safe for browser use.
-MYSVEX_SUPABASE_URL = 'https://xljthbkmynrjgeslkpuy.supabase.co/rest/v1/';
-MYSVEX_SUPABASE_PUBLISHABLE_KEY = 'sb_publishable_N8x42aYHNH4k5PpURse5iQ_-jckNJmH';
-mysvexSupabase =supabase.createClient(MYSVEX_SUPABASE_URL,MYSVEX_SUPABASE_PUBLISHABLE_KEY, {auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:true}});
+window.MYSVEX_SUPABASE_URL = 'https://xljthbkmynrjgeslkpuy.supabase.co/rest/v1/';
+window.MYSVEX_SUPABASE_PUBLISHABLE_KEY = 'sb_publishable_sYcw7l_7NOgrLhkROkOHMg_dIcP2Grd';
+window.mysvexSupabase = window.supabase.createClient(window.MYSVEX_SUPABASE_URL, window.MYSVEX_SUPABASE_PUBLISHABLE_KEY, {auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:true}});
