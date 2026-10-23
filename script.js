@@ -1,11 +1,10 @@
 document.addEventListener('DOMContentLoaded', () => {
     // Shared Data Store
     let products = [
-        { id: 1, name: "Eternal Solitaire Ring", price: 1250, category: "rings", img: "https://images.unsplash.com/photo-1605100804763-247f67b3557e?auto=format&fit=crop&q=80&w=500", desc: "1.5ct brilliant-cut diamond in 18k white gold.", metal: "18K White Gold", weight: "4.8g", stone: "1.5ct Diamond" },
-        { id: 2, name: "Crescent Gold Pendant", price: 850, category: "necklaces", img: "https://images.unsplash.com/photo-1599643478518-a784e5dc4c8f?auto=format&fit=crop&q=80&w=500", desc: "Celestial beauty carved from 22k yellow gold.", metal: "22K Yellow Gold", weight: "8.2g", stone: "None" },
-        { id: 3, name: "Sapphire Drop Earrings", price: 1800, category: "earrings", img: "https://images.unsplash.com/photo-1535633302704-b042cda6c677?auto=format&fit=crop&q=80&w=500", desc: "Blue sapphires in elegant platinum drop design.", metal: "Platinum 950", weight: "6.5g", stone: "Sapphire" }
+        { id: 1, name: "Pearl Bloom Earrings", price: 650, category: "earrings", img: "https://images.unsplash.com/photo-1535632066927-ab7c9ab60908?auto=format&fit=crop&q=85&w=600", desc: "Elegant pearl-look statement earrings for day-to-evening styling.", metal: "Fashion alloy / pearl-look finish", weight: "Lightweight", stone: "Pearl-look detail" },
+        { id: 2, name: "Everyday Layered Necklace", price: 890, category: "necklaces", img: "https://images.unsplash.com/photo-1611652022419-a9419f74343d?auto=format&fit=crop&q=85&w=600", desc: "A versatile fashion necklace designed for layering and everyday outfits.", metal: "Fashion jewellery alloy", weight: "Lightweight", stone: "Decorative detail" },
+        { id: 3, name: "Blush Statement Ring", price: 450, category: "rings", img: "https://images.unsplash.com/photo-1605100804763-247f67b3557e?auto=format&fit=crop&q=85&w=600", desc: "A playful statement ring to add a little personality to your look.", metal: "Fashion jewellery alloy", weight: "Lightweight", stone: "Decorative accent" }
     ];
-
     // Shared browser store. This keeps data across reloads on THIS browser only.
     const STORE_KEY = 'mysvex_store_v1';
     function readStore() {
@@ -13,7 +12,17 @@ document.addEventListener('DOMContentLoaded', () => {
         catch (_) { return {}; }
     }
     let store = readStore();
-    if (Array.isArray(store.products) && store.products.length) products = store.products;
+    if (Array.isArray(store.products) && store.products.length) {
+        products = store.products;
+        const oldDemoNames = ['Eternal Solitaire Ring', 'Crescent Gold Pendant', 'Sapphire Drop Earrings'];
+        if (products.every(p => oldDemoNames.includes(p.name))) {
+            products = [
+                { id: 1, name: "Pearl Bloom Earrings", price: 650, category: "earrings", img: "https://images.unsplash.com/photo-1535632066927-ab7c9ab60908?auto=format&fit=crop&q=85&w=600", desc: "Elegant pearl-look statement earrings for day-to-evening styling.", metal: "Fashion alloy / pearl-look finish", weight: "Lightweight", stone: "Pearl-look detail" },
+                { id: 2, name: "Everyday Layered Necklace", price: 890, category: "necklaces", img: "https://images.unsplash.com/photo-1611652022419-a9419f74343d?auto=format&fit=crop&q=85&w=600", desc: "A versatile fashion necklace designed for layering and everyday outfits.", metal: "Fashion jewellery alloy", weight: "Lightweight", stone: "Decorative detail" },
+                { id: 3, name: "Blush Statement Ring", price: 450, category: "rings", img: "https://images.unsplash.com/photo-1605100804763-247f67b3557e?auto=format&fit=crop&q=85&w=600", desc: "A playful statement ring to add a little personality to your look.", metal: "Fashion jewellery alloy", weight: "Lightweight", stone: "Decorative accent" }
+            ];
+        }
+    }
     let cart = [];
     window.mysvexCart = cart;
     let orders = Array.isArray(store.orders) ? store.orders : [];
@@ -50,8 +59,10 @@ document.addEventListener('DOMContentLoaded', () => {
     function renderProducts(filter = 'all') {
         if (!productListContainer) return;
         productListContainer.innerHTML = '';
-        const filtered = products.filter(p => filter === 'all' || p.category === filter);
+        const term = (document.getElementById('product-search')?.value || '').trim().toLowerCase();
+        const filtered = products.filter(p => (filter === 'all' || String(p.category || '').toLowerCase() === filter) && (!term || `${p.name} ${p.desc} ${p.category}`.toLowerCase().includes(term)));
 
+        if (!filtered.length) { productListContainer.innerHTML = '<p class="empty-products">No matching pieces found. অন্য পণ্য খুঁজে দেখুন।</p>'; return; }
         filtered.forEach(p => {
             const card = document.createElement('article');
             card.className = 'product-card';
@@ -65,7 +76,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 <div class="product-info">
                     <h3>${p.name}</h3>
                     <p>${p.desc}</p>
-                    <div class="price-container">$${parseFloat(p.price).toFixed(2)}</div>
+                    <div class="price-container">৳${Number(p.price).toLocaleString("en-BD")}</div>
                 </div>
             `;
             card.addEventListener('click', () => showProductDetails(p.id));
@@ -82,7 +93,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if(!p) return;
         document.getElementById('p-detail-img').src = p.img;
         document.getElementById('p-detail-name').innerText = p.name;
-        document.getElementById('p-detail-price-now').innerText = `$${parseFloat(p.price).toFixed(2)}`;
+        document.getElementById('p-detail-price-now').innerText = `৳${Number(p.price).toLocaleString("en-BD")}`;
         document.getElementById('p-detail-desc').innerText = p.desc;
         document.getElementById('p-detail-category').innerText = p.category;
         document.getElementById('p-detail-metal').innerText = p.metal || '--';
@@ -120,12 +131,12 @@ document.addEventListener('DOMContentLoaded', () => {
                 <img src="${item.img}">
                 <div style="flex:1;">
                     <h4 style="font-size:0.8rem;">${item.name}</h4>
-                    <span style="font-size:0.7rem; color:var(--accent);">$${parseFloat(item.price).toFixed(2)} x ${item.quantity}</span>
+                    <span style="font-size:0.7rem; color:var(--accent);">৳${Number(item.price).toLocaleString("en-BD")} x ${item.quantity}</span>
                 </div>
             `;
             cartItemsContainer.appendChild(div);
         });
-        totalAmountSpan.textContent = `$${total.toFixed(2)}`;
+        totalAmountSpan.textContent = `৳${Number(total).toLocaleString("en-BD")}`;
         document.getElementById('cart-auth-warning').style.display = currentUser ? 'none' : 'block';
     }
 
@@ -149,7 +160,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 div.innerHTML = `
                     <div>
                         <div style="font-size:0.75rem; font-weight:700;">#ORD-${o.id}</div>
-                        <div style="font-size:0.65rem; color:var(--text-muted);">${o.itemsCount} items — $${o.total.toFixed(2)}</div>
+                        <div style="font-size:0.65rem; color:var(--text-muted);">${o.itemsCount} items — ৳${Number(o.total).toLocaleString("en-BD")}</div>
                     </div>
                     <span class="order-badge badge-${o.status.toLowerCase()}">${o.status}</span>
                 `;
@@ -232,7 +243,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     <div style="font-weight:700;">${o.userName}</div>
                     <div style="font-size:0.65rem; color:var(--text-muted);">${o.userEmail}</div>
                 </div>
-                <div style="font-weight:700;">$${o.total.toFixed(2)}</div>
+                <div style="font-weight:700;">৳${Number(o.total).toLocaleString("en-BD")}</div>
                 <span class="order-badge badge-${o.status.toLowerCase()}">${o.status}</span>
                 <div>
                     ${o.status === 'Pending' ? `<button class="btn btn-primary adm-confirm-btn" data-id="${o.id}" style="padding:0.4rem 0.8rem; font-size:0.6rem;">CONFIRM</button>` : '<span style="color:#22c55e; font-size:0.6rem; font-weight:700;">ACTIONED</span>'}
@@ -461,7 +472,11 @@ document.addEventListener('DOMContentLoaded', () => {
         document.getElementById('admin-pass-input').value = '';
     });
 
-    // Filter Buttons
+    // Product search and category filters
+    document.getElementById('product-search')?.addEventListener('input', () => {
+        const activeFilter = document.querySelector('.filter-btn.active')?.dataset.filter || 'all';
+        renderProducts(activeFilter);
+    });
     document.querySelectorAll('.filter-btn').forEach(btn => {
         btn.addEventListener('click', () => {
             document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
