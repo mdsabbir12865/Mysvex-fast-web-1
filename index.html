@@ -28,7 +28,7 @@
 <header class="header">
     <nav class="nav container">
         <a href="#" class="logo">
-            <img src=".png" alt="Mysvex Fashion Jewellery Logo">
+            <span class="logo-text">MYSVEX</span>
         </a>
         <ul class="nav-links">
             <li><a href="#home" class="nav-link">Home</a></li>
@@ -275,6 +275,8 @@
         <div class="checkout-view">
             <button class="back-to-cart" style="background:none; border:none; cursor:pointer; font-size:0.8rem; margin-bottom:1rem;">&larr; Back to collection</button>
             <form id="checkout-form" class="checkout-form">
+                <div class="coupon-box"><label for="coupon-code">Coupon code</label><div class="coupon-entry"><input id="coupon-code" type="text" placeholder="Enter coupon code" autocomplete="off"><button type="button" id="apply-coupon" class="btn btn-outline">Apply</button></div><p id="coupon-message" aria-live="polite"></p></div>
+                <div class="checkout-totals"><div><span>Subtotal</span><strong id="checkout-subtotal">৳0.00</strong></div><div><span>Discount</span><strong id="checkout-discount">−৳0.00</strong></div><div class="grand-total"><span>Total</span><strong id="checkout-total">৳0.00</strong></div></div>
                 <div class="form-group">
                     <label for="full-name">Full Name</label>
                     <input type="text" id="full-name" required>
