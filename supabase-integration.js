@@ -11,7 +11,12 @@
     if (!user) return;
     const {data:p,error}=await sb.from('profiles').select('id,full_name,role').eq('id',user.id).maybeSingle();
     if(error) console.warn('Profile read:',error.message); else profile=p;
-    if (!profile) { const {error:insertError}=await sb.from('profiles').insert({id:user.id,full_name:user.user_metadata?.full_name||user.email,role:'client'}); if(!insertError) profile={id:user.id,full_name:user.user_metadata?.full_name||user.email,role:'client'}; }
+    if (!profile) {
+      const fullName=user.user_metadata?.full_name||user.email;
+      const {error:insertError}=await sb.from('profiles').insert({id:user.id,full_name:fullName,role:'client'});
+      if(!insertError) profile={id:user.id,full_name:fullName,role:'client'};
+      else if(!/duplicate|already exists/i.test(insertError.message)) console.warn('Profile creation failed. Check profiles table policies:',insertError.message);
+    }
     window.dispatchEvent(new CustomEvent('mysvex-auth-changed',{detail:{user,profile}}));
     const name=(profile&&profile.full_name)||user.user_metadata?.full_name||user.email;
     const dot=$('user-status-dot'); if(dot) dot.style.display='block';
@@ -28,8 +33,39 @@
   document.addEventListener('DOMContentLoaded', async () => {
     const {data:{session}}=await sb.auth.getSession(); if(session?.user) await setUser(session.user);
     sb.auth.onAuthStateChange((_event,session)=>{ if(session?.user) setTimeout(()=>setUser(session.user),0); else {authUser=null;profile=null;} });
-    const reg=$('register-form'); if(reg) reg.addEventListener('submit',async e=>{e.preventDefault();e.stopImmediatePropagation();const name=$('r-name').value.trim(),email=$('r-email').value.trim().toLowerCase(),password=$('r-pass').value;const {data,error}=await sb.auth.signUp({email,password,options:{data:{full_name:name}}});if(error)return showError(error.message);if(data.user){const {error:pe}=await sb.from('profiles').insert({id:data.user.id,full_name:name,role:'client'});if(pe && !/duplicate/i.test(pe.message)) console.warn('Profile creation:',pe.message);} if(data.session){await setUser(data.user);$('auth-modal').classList.remove('active');}else showError('Registration created. Check your email to confirm, then sign in.');},true);
-    const login=$('login-form'); if(login) login.addEventListener('submit',async e=>{e.preventDefault();e.stopImmediatePropagation();const {data,error}=await sb.auth.signInWithPassword({email:$('l-email').value.trim().toLowerCase(),password:$('l-pass').value});if(error)return showError(error.message);await setUser(data.user);$('auth-modal').classList.remove('active');if($('auth-error-msg'))$('auth-error-msg').style.display='none';},true);
+    const reg=$('register-form'); if(reg) reg.addEventListener('submit',async e=>{
+      e.preventDefault(); e.stopImmediatePropagation();
+      const name=$('r-name')?.value.trim(),email=$('r-email')?.value.trim().toLowerCase(),password=$('r-pass')?.value;
+      if(!name||!email||!password) return showError('Please complete all registration fields.');
+      if(password.length<6) return showError('Password must be at least 6 characters.');
+      const btn=reg.querySelector('[type="submit"]'); if(btn) btn.disabled=true;
+      try {
+        const {data,error}=await sb.auth.signUp({email,password,options:{data:{full_name:name}}});
+        if(error) return showError(error.message);
+        if(data.user && data.session) {
+          const {error:pe}=await sb.from('profiles').upsert({id:data.user.id,full_name:name,role:'client'},{onConflict:'id'});
+          if(pe) console.warn('Profile creation failed; check Supabase profiles policies:',pe.message);
+          await setUser(data.user); $('auth-modal')?.classList.remove('active');
+          if($('auth-error-msg')) $('auth-error-msg').style.display='none';
+        } else {
+          showError('Registration created. Check your email to confirm, then sign in.');
+        }
+      } catch(err) { showError(err.message||'Registration failed. Please try again.'); }
+      finally { if(btn) btn.disabled=false; }
+    },true);
+    const login=$('login-form'); if(login) login.addEventListener('submit',async e=>{
+      e.preventDefault(); e.stopImmediatePropagation();
+      const email=$('l-email')?.value.trim().toLowerCase(),password=$('l-pass')?.value;
+      if(!email||!password) return showError('Enter your email and password.');
+      const btn=login.querySelector('[type="submit"]'); if(btn) btn.disabled=true;
+      try {
+        const {data,error}=await sb.auth.signInWithPassword({email,password});
+        if(error) return showError(error.message);
+        await setUser(data.user); $('auth-modal')?.classList.remove('active');
+        if($('auth-error-msg')) $('auth-error-msg').style.display='none';
+      } catch(err) { showError(err.message||'Sign in failed. Please try again.'); }
+      finally { if(btn) btn.disabled=false; }
+    },true);
     const checkout=$('checkout-form'); if(checkout) checkout.addEventListener('submit',async e=>{e.preventDefault();e.stopImmediatePropagation();const {data:{user}}=await sb.auth.getUser();if(!user){$('auth-modal').classList.add('active');return showError('Please sign in before placing an order.');}const cart=Array.isArray(window.mysvexCart)?window.mysvexCart:[]; // legacy cart is closed over; read current UI as fallback below
       let items=cart;
       if(!items.length){const names=[...document.querySelectorAll('.cart-item')];items=names.map(el=>({name:el.querySelector('h4')?.textContent||'Item',quantity:1,price:Number((el.querySelector('span')?.textContent||'').match(/[\d.]+/)?.[0]||0)}));}

@@ -12,7 +12,7 @@ document.addEventListener('DOMContentLoaded', () => {
         catch (_) { return {}; }
     }
     let store = readStore();
-    if (Array.isArray(store.products) && store.products.length) {
+    if (Array.isArray(store.products)) {
         products = store.products;
         const oldDemoNames = ['Eternal Solitaire Ring', 'Crescent Gold Pendant', 'Sapphire Drop Earrings'];
         if (products.every(p => oldDemoNames.includes(p.name))) {
