@@ -6,12 +6,30 @@ const money=n=>'৳'+Number(n||0).toLocaleString('en-BD',{minimumFractionDigits:
 const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const read=()=>{try{return JSON.parse(localStorage.getItem(KEY)||'{}')}catch{return {}}};
 function store(){const d=read();d.products=products;localStorage.setItem(KEY,JSON.stringify(d))}
+const sb=()=>window.mysvexSupabase;
+function normalizeProduct(row){return {id:String(row.id),name:row.name||'',price:Number(row.price||0),category:row.category||'earrings',img:row.img||row.image_url||'',desc:row.desc||row.description||'',metal:row.metal||'',weight:row.weight||'',stone:row.stone||'',discountPercent:Number(row.discountPercent??row.discount_percent??0)}}
+function dbProduct(p){return {id:p.id,name:p.name,price:Number(p.price||0),category:p.category||'earrings',img:p.img||'',desc:p.desc||'',metal:p.metal||'',weight:p.weight||'',stone:p.stone||'',discount_percent:Number(p.discountPercent||0)}}
+async function loadProducts(){
+ const client=sb();
+ if(client){
+  const {data,error}=await client.from('products').select('*').order('created_at',{ascending:false});
+  if(!error && Array.isArray(data)){products=data.map(normalizeProduct);store();renderProducts();renderAdminProducts();return true;}
+  console.warn('MYSVEX products could not load from Supabase. Check products table and RLS policy:',error?.message);
+ }
+ products=Array.isArray(read().products)?read().products:[];renderProducts();renderAdminProducts();return false;
+}
+let productChannel=null;
+function subscribeProducts(){const client=sb();if(!client||productChannel)return;productChannel=client.channel('mysvex-products-live').on('postgres_changes',{event:'*',schema:'public',table:'products'},()=>loadProducts()).subscribe();}
+function renderAdminProducts(){const root=document.querySelector('.admin-product-list');if(!root)return;root.innerHTML=products.map(p=>`<div class="admin-product-row" style="display:grid;grid-template-columns:64px 1fr auto;gap:12px;align-items:center;padding:10px;border-bottom:1px solid #eee"><img src="${esc(p.img||'')}" alt="" style="width:52px;height:52px;object-fit:cover;border-radius:8px"><div><strong>${esc(p.name)}</strong><div>${money(p.price)} · ${esc(p.category)}</div></div><button type="button" class="btn btn-outline" data-delete-product="${esc(p.id)}">Delete</button></div>`).join('')||'<p>No products yet.</p>';}
+async function saveProduct(p){const client=sb();if(!client)throw new Error('Supabase connection is not available.');const {data,error}=await client.from('products').insert(dbProduct(p)).select('*').single();if(error)throw error;products.unshift(normalizeProduct(data));store();renderProducts();renderAdminProducts();return data;}
+async function deleteProduct(id){const client=sb();if(!client)throw new Error('Supabase connection is not available.');const {error}=await client.from('products').delete().eq('id',id);if(error)throw error;products=products.filter(p=>String(p.id)!==String(id));store();renderProducts();renderAdminProducts();}
+
 function salePrice(p){return Math.max(0,Number(p.price||0)*(1-Math.min(100,Math.max(0,Number(p.discountPercent||0)))/100))}
 function renderProducts(){
  const root=$('product-list-container');if(!root)return;
  const q=($('product-search')?.value||'').toLowerCase();
  const list=products.filter(p=>(activeFilter==='all'||String(p.category||'').toLowerCase()===activeFilter)&&(`${p.name} ${p.category} ${p.desc}`).toLowerCase().includes(q));
- root.innerHTML=list.length?list.map(p=>`<article class="product-card"><div class="product-img">${p.img?`<img src="${esc(p.img)}" alt="${esc(p.name)}" loading="lazy">`:'<div class="product-placeholder">MYSVEX</div>'}${Number(p.discountPercent)>0?`<span class="discount-badge">${Number(p.discountPercent)}% OFF</span>`:''}<button class="add-to-cart-btn" data-add="${esc(p.id)}" aria-label="Add ${esc(p.name)} to cart">＋</button></div><div class="product-info"><h3>${esc(p.name)}</h3><p>${esc(p.category||'Jewellery')}</p><div class="price-container">${Number(p.discountPercent)>0?`<del>${money(p.price)}</del> `:''}${money(salePrice(p))}</div><button class="btn btn-outline product-add-mobile" data-add="${esc(p.id)}">Add to bag</button></div></article>`).join(''):'<p class="empty-products">No products found. Add products from the admin dashboard.</p>';
+ root.innerHTML=list.length?list.map(p=>`<article class="product-card" data-name="${esc(p.name)}" data-image="${esc(p.img||'')}" data-price="${esc(money(salePrice(p)))}" data-description="${esc(p.desc||'')}" data-category="${esc(p.category||'Jewellery')}" data-metal="${esc(p.metal||'Fashion jewellery')}" data-weight="${esc(p.weight||'—')}" data-stone="${esc(p.stone||'—')}"><div class="product-img">${p.img?`<img src="${esc(p.img)}" alt="${esc(p.name)}" loading="lazy">`:'<div class="product-placeholder">MYSVEX</div>'}${Number(p.discountPercent)>0?`<span class="discount-badge">${Number(p.discountPercent)}% OFF</span>`:''}<button class="add-to-cart-btn" data-add="${esc(p.id)}" aria-label="Add ${esc(p.name)} to cart">＋</button></div><div class="product-info"><h3>${esc(p.name)}</h3><p>${esc(p.category||'Jewellery')}</p><div class="price-container">${Number(p.discountPercent)>0?`<del>${money(p.price)}</del> `:''}${money(salePrice(p))}</div><button class="btn btn-outline product-add-mobile" data-add="${esc(p.id)}">Add to bag</button></div></article>`).join(''):'<p class="empty-products">No products found. Add products from the admin dashboard.</p>';
 }
 function subtotal(){return cart.reduce((n,p)=>n+salePrice(p)*p.quantity,0)}
 function discount(){return appliedCoupon?subtotal()*appliedCoupon.percent/100:0}
@@ -35,8 +53,11 @@ function applyCoupon(){
  renderCart();
 }
 document.addEventListener('DOMContentLoaded',()=>{
+ const addProductBtn=$('add-new-product-btn');
+ if(addProductBtn) addProductBtn.addEventListener('click',async e=>{e.preventDefault();const name=$('new-p-name')?.value.trim();const price=Number($('new-p-price')?.value);if(!name||!Number.isFinite(price)||price<0){alert('Product name and a valid price are required.');return;}const p={id:crypto.randomUUID?crypto.randomUUID():String(Date.now()),name,price,category:$('new-p-category')?.value||'earrings',img:$('new-p-img')?.value.trim()||'',metal:$('new-p-metal')?.value.trim()||'',weight:$('new-p-weight')?.value.trim()||'',stone:$('new-p-stone')?.value.trim()||'',desc:$('new-p-desc')?.value.trim()||'',discountPercent:0};addProductBtn.disabled=true;try{await saveProduct(p);alert('Product saved to shared database. It should now appear for all visitors.');['new-p-name','new-p-price','new-p-img','new-p-metal','new-p-weight','new-p-stone','new-p-desc'].forEach(id=>{if($(id))$(id).value='';});}catch(err){console.error(err);alert('Could not save product to Supabase: '+(err.message||'Unknown error')+'\nCheck the products table and admin write policy.');}finally{addProductBtn.disabled=false;}});
+ document.addEventListener('click',async e=>{const btn=e.target.closest('[data-delete-product]');if(!btn)return;if(!confirm('Delete this product for all visitors?'))return;btn.disabled=true;try{await deleteProduct(btn.dataset.deleteProduct)}catch(err){alert('Could not delete product: '+(err.message||''));btn.disabled=false;}});
  products=Array.isArray(read().products)?read().products:[];
- renderProducts();renderCart();
+ renderProducts();renderCart();loadProducts();subscribeProducts();
  $('product-search')?.addEventListener('input',renderProducts);
  document.querySelectorAll('.filter-btn').forEach(b=>b.addEventListener('click',()=>{activeFilter=b.dataset.filter;document.querySelectorAll('.filter-btn').forEach(x=>x.classList.toggle('active',x===b));renderProducts()}));
  document.addEventListener('click',e=>{

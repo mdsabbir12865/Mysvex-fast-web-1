@@ -32,7 +32,7 @@
   };
   document.addEventListener('DOMContentLoaded', async () => {
     const {data:{session}}=await sb.auth.getSession(); if(session?.user) await setUser(session.user);
-    sb.auth.onAuthStateChange((_event,session)=>{ if(session?.user) setTimeout(()=>setUser(session.user),0); else {authUser=null;profile=null;} });
+    sb.auth.onAuthStateChange((_event,session)=>{ if(session?.user) setTimeout(()=>setUser(session.user),0); else {authUser=null;profile=null;window.dispatchEvent(new CustomEvent('mysvex-auth-changed',{detail:{user:null,profile:null}}));} });
     const reg=$('register-form'); if(reg) reg.addEventListener('submit',async e=>{
       e.preventDefault(); e.stopImmediatePropagation();
       const name=$('r-name')?.value.trim(),email=$('r-email')?.value.trim().toLowerCase(),password=$('r-pass')?.value;
