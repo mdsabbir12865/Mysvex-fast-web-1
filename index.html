@@ -29,7 +29,7 @@
 <header class="header">
     <nav class="nav container">
         <a href="#" class="logo">
-            <span class="logo-text">MYSVEX</span>
+            <img class="mysvex-brand-logo" src="https://img.sanishtech.com/u/6f847c9d6d410c4d316aa2bd8d0b54c9.jpg" alt="MYSVEX logo" loading="eager">
         </a>
         <ul class="nav-links">
             <li><a href="#home" class="nav-link">Home</a></li>
@@ -197,7 +197,7 @@
     <div class="container footer-grid">
         <div class="footer-brand">
             <a href="#" class="logo footer-logo">
-                <img src="https://drive.google.com/file/d/1eI_ba0WFxbN51EgVUSmTFrM_XM6-rSka/view?usp=drivesdk" alt="Mysvex Logo">
+                <img src="https://img.sanishtech.com/u/6f847c9d6d410c4d316aa2bd8d0b54c9.jpg" alt="MYSVEX logo">
             </a>
             <p>Fashion jewellery for your everyday kind of luxury.</p>
         </div>
@@ -316,7 +316,7 @@
         </div>
         <div class="success-view">
             <div class="success-header" style="text-align:center; margin-bottom:1rem;">
-                <img src="https://uaverzpqtgxcubqthmnx.supabase.co/storage/v1/object/sign/uploads/5136f065-a2ab-4e69-acf1-f25b643da5f3/ba68adc1-408e-482e-8cf1-8fc05863558e/4dbbd054-04ec-47e4-ad3f-c236814fcd37-file_00000000f2f48210b9d5de90c52b5844.png?token=eyJraWQiOiI5YjgxYmQxYy02MDczLTQ3NDItYTNlNy05YzkzNWFkZTVjMjUiLCJhbGciOiJIUzI1NiJ9.eyJ1cmwiOiJ1cGxvYWRzLzUxMzZmMDY1LWEyYWItNGU2OS1hY2YxLWYyNWI2NDNkYTVmMy9iYTY4YWRjMS00MDhlLTQ4MmUtOGNmMS04ZmMwNTg2MzU1OGUvNGRiYmQwNTQtMDRlYy00N2U0LWFkM2YtYzIzNjgxNGZjZDM3LWZpbGVfMDAwMDAwMDBmMmY0ODIxMGI5ZDVkZTkwYzUyYjU4NDQucG5nIiwic2NvcGUiOiJkb3dubG9hZCIsImlhdCI6MTc5MjUxMDk0MiwiZXhwIjoxNzkyNTE0NTQyfQ.H66TRAWqTm-WEej4t3HD4_xE2eFgMF8Qkmp7enX6hIE" alt="Logo" style="height:40px;">
+                <img src="https://img.sanishtech.com/u/6f847c9d6d410c4d316aa2bd8d0b54c9.jpg" alt="MYSVEX logo" style="height:48px;width:110px;object-fit:contain;">
             </div>
             <div class="success-status-icon" style="text-align:center; margin:1rem 0; color:var(--accent);">
                 <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
@@ -343,10 +343,7 @@
     <div class="admin-panel">
         <div class="admin-sidebar" style="display: none;">
             <div class="admin-sidebar-header">
-<img
-  src="https://img.sanishtech.com/u/6f847c9d6d410c4d316aa2bd8d0b54c9.jpg"
-  alt="MYSVEX Admin Logo"
->
+                <img src="https://img.sanishtech.com/u/6f847c9d6d410c4d316aa2bd8d0b54c9.jpg" alt="MYSVEX logo">
                 <span>Atelier Admin</span>
             </div>
             <nav class="admin-nav">
@@ -464,7 +461,7 @@
     <div class="auth-card auth-card-redesign">
         <button class="modal-close" type="button" aria-label="Close">&times;</button>
         <aside class="auth-visual">
-            <div class="auth-visual-brand">MYSVEX<span>®</span></div>
+            <div class="auth-visual-brand"><img src="https://img.sanishtech.com/u/6f847c9d6d410c4d316aa2bd8d0b54c9.jpg" alt="MYSVEX logo"><span>THE EVERYDAY LUXE EDIT</span></div>
             <div class="auth-visual-copy">
                 <span class="auth-overline">THE EVERYDAY LUXE EDIT</span>
                 <h2>A little detail.<br><em>A lot of you.</em></h2>
@@ -474,7 +471,7 @@
         </aside>
         <div class="auth-form-side">
             <div class="auth-logo-header">
-                <div class="auth-wordmark">MYSVEX</div>
+                <div class="auth-wordmark"><img src="https://img.sanishtech.com/u/6f847c9d6d410c4d316aa2bd8d0b54c9.jpg" alt="MYSVEX logo"></div>
                 <p class="auth-welcome">YOUR STYLE, YOUR STORY.</p>
                 <p id="auth-message-notice" class="auth-notice" style="display:none;">Login to confirm your order.</p>
             </div>
@@ -632,6 +629,86 @@ document.addEventListener('click', function(event) {
       }
     }, true);
   }
+})();
+</script>
+
+<script>
+/* MYSVEX reliability patch: product details, logo fallback and sign-out UI. */
+(function () {
+  const BRAND_LOGO = 'https://img.sanishtech.com/u/6f847c9d6d410c4d316aa2bd8d0b54c9.jpg';
+  document.querySelectorAll('.logo img, .auth-visual-brand img, .auth-wordmark img, .success-header img, .admin-sidebar-header img').forEach(function(img){
+    img.src = BRAND_LOGO;
+    img.addEventListener('error', function(){ img.style.display='none'; }, {once:true});
+  });
+
+  function showProductDetails(card) {
+    const modal = document.getElementById('product-detail-modal');
+    if (!modal || !card) return;
+    const img = card.querySelector('img');
+    const title = card.querySelector('h3, h2, .product-title, [data-product-name]');
+    const price = card.querySelector('.price-now, .product-price, .price-container, [data-product-price]');
+    const desc = card.querySelector('.product-description, .product-desc, [data-product-description]');
+    const category = card.querySelector('.badge-small, .product-category, [data-product-category]');
+    const set = (id, value) => { const el=document.getElementById(id); if(el && value) el.textContent=value; };
+    const name = card.dataset.name || (title && title.textContent.trim()) || 'MYSVEX Jewellery';
+    const imageUrl = card.dataset.image || (img && (img.currentSrc || img.src));
+    const priceText = card.dataset.price || (price && price.textContent.trim()) || '';
+    const detailImg = document.getElementById('p-detail-img');
+    if (detailImg && imageUrl) { detailImg.src=imageUrl; detailImg.alt=name; }
+    set('p-detail-name', name); set('p-detail-price-now', priceText);
+    set('p-detail-desc', card.dataset.description || (desc && desc.textContent.trim()) || 'A thoughtfully selected piece from MYSVEX.');
+    set('p-detail-category', card.dataset.category || (category && category.textContent.trim()) || 'MYSVEX Collection');
+    set('p-detail-metal', card.dataset.metal || 'Fashion jewellery');
+    set('p-detail-weight', card.dataset.weight || '—');
+    set('p-detail-stone', card.dataset.stone || '—');
+    modal.classList.add('active'); modal.style.display='flex'; document.body.classList.add('modal-open');
+  }
+
+  document.addEventListener('click', function(event){
+    const card = event.target.closest('.product-card, .product-item, [data-product-card]');
+    if (card && !event.target.closest('button, a, input, select, .add-to-cart-btn, [data-no-detail]')) {
+      showProductDetails(card);
+    }
+    if (event.target.closest('#p-detail-close') || (event.target.classList && event.target.classList.contains('modal-overlay') && event.target.id==='product-detail-modal')) {
+      const modal=document.getElementById('product-detail-modal'); if(modal){modal.classList.remove('active'); modal.style.display='none';} document.body.classList.remove('modal-open');
+    }
+  }, true);
+
+  const logout = document.getElementById('logout-btn');
+  if (logout) logout.addEventListener('click', async function(event){
+    event.preventDefault();
+    let client = window.supabaseClient || window._supabase || window.supabase;
+    try {
+      if (client && client.auth && typeof client.auth.signOut === 'function') await client.auth.signOut();
+      else {
+        /* Try common app-exposed client names without breaking if none is exposed. */
+        for (const key of ['supabaseClient','_supabase','mysvexSupabase']) {
+          if (window[key] && window[key].auth && typeof window[key].auth.signOut==='function') { await window[key].auth.signOut(); break; }
+        }
+      }
+    } catch(err) { console.error('MYSVEX sign out error:', err); }
+    /* Fallback for apps where the Supabase client is module-scoped and not on window. */
+    try {
+      Object.keys(localStorage).filter(function(key){ return /^sb-.+-auth-token$/.test(key) || /supabase.*auth/i.test(key); }).forEach(function(key){ localStorage.removeItem(key); });
+    } catch(storageError) { console.warn('Could not clear persisted auth session:', storageError); }
+    const profile=document.getElementById('profile-modal');
+    if(profile){profile.classList.remove('active','open');profile.style.display='none';}
+    document.querySelectorAll('.modal-overlay').forEach(function(m){ if(m.id==='profile-modal') m.style.display='none'; });
+    document.body.classList.remove('modal-open');
+    /* Let Supabase auth listeners update state first; reload only if the profile UI stayed signed in. */
+    setTimeout(function(){
+      const status=document.getElementById('user-status-dot');
+      if(status) status.style.display='none';
+      const btn=document.getElementById('user-profile-btn');
+      if(btn){btn.setAttribute('aria-label','Account');}
+      window.location.reload();
+    }, 250);
+  }, true);
+
+  // Ensure every product image/title surface feels clickable, including dynamically rendered products.
+  const style=document.createElement('style');
+  style.textContent='.mysvex-brand-logo{display:block;width:94px;height:54px;object-fit:contain}.auth-visual-brand{display:flex;flex-direction:column;gap:12px;align-items:flex-start}.auth-visual-brand img{width:112px;height:58px;object-fit:contain;border-radius:8px}.auth-visual-brand span{font-size:9px;letter-spacing:.18em}.auth-wordmark img{display:block;width:118px;height:54px;object-fit:contain;object-position:left center}.product-card,.product-item,[data-product-card]{cursor:pointer}.product-modal-content{max-height:90dvh;overflow:auto}#product-detail-modal.active{display:flex!important}';
+  document.head.appendChild(style);
 })();
 </script>
 

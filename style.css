@@ -563,3 +563,16 @@ input, select, textarea, button { font-size: 16px; }
   .checkout-section-heading { margin-top:25px; }
   .checkout-section-heading h3 { font-size:1.18rem; }
 }
+
+/* MYSVEX logo + interaction polish */
+.mysvex-brand-logo{display:block;width:94px;height:54px;object-fit:contain}
+.logo{display:flex;align-items:center}
+.footer-logo img{width:118px;height:68px;object-fit:contain;filter:none!important;mix-blend-mode:normal!important}
+.auth-visual-brand{display:flex;flex-direction:column;gap:12px;align-items:flex-start}
+.auth-visual-brand img{width:112px;height:58px;object-fit:contain;border-radius:8px}
+.auth-visual-brand span{font-size:9px;letter-spacing:.18em}
+.auth-wordmark img{display:block;width:118px;height:54px;object-fit:contain;object-position:left center}
+.product-card,.product-item,[data-product-card]{cursor:pointer}
+#product-detail-modal.active{display:flex!important}
+.product-modal-content{max-height:90dvh;overflow:auto}
+@media(max-width:680px){.mysvex-brand-logo{width:76px;height:43px}.auth-visual-brand img{width:96px;height:48px}}
