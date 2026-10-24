@@ -17,6 +17,7 @@
 <meta name="description" content="Shop modern fashion jewellery at MYSVEX — earrings, necklaces, rings, anklets and everyday statement pieces.">
 <link rel="icon" type="image/png" href="https://drive.google.com/file/d/1eI_ba0WFxbN51EgVUSmTFrM_XM6-rSka/view?usp=drivesdk">
 <link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Noto+Sans+Bengali:wght@400;500;600;700&family=Playfair+Display:wght@500;600;700&display=swap" rel="stylesheet">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Playfair+Display:ital,wght@0,500;0,600;0,700;1,500;1,600&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="style.css">
@@ -58,6 +59,29 @@
 </header>
 
 <main>
+    <section id="home" class="hero">
+        <div class="container hero-grid">
+            <div class="hero-content">
+                <div class="badge">THE MYSVEX EDIT</div>
+                <p class="hero-eyebrow">FASHION JEWELLERY · EVERYDAY LUXE</p>
+                <h1>Your style, <span class="highlight">your story.</span></h1>
+                <p>Discover fashion-forward jewellery made for everyday moments, special plans and everything in between.</p>
+                <div class="hero-btns">
+                    <a href="#collection" class="btn btn-primary">Explore the collection <span aria-hidden="true">↗</span></a>
+                    <a href="#about" class="btn btn-outline">Our Story</a>
+                </div>
+            </div>
+            <div class="hero-image">
+                <div class="image-wrapper">
+                    <img src="https://images.unsplash.com/photo-1617038220319-276d3cfab638?auto=format&fit=crop&q=85&w=1200" alt="Fashion jewellery close-up by Mysvex">
+                    <div class="floating-card">
+                        <small>THE MYSVEX SIGNATURE</small>
+                        <p>Quiet luxury. Lasting beauty.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
 
     <section id="collection" class="collection section">
         <div class="container">
@@ -254,19 +278,40 @@
             <form id="checkout-form" class="checkout-form">
                 <div class="coupon-box"><label for="coupon-code">Coupon code</label><div class="coupon-entry"><input id="coupon-code" type="text" placeholder="Enter coupon code" autocomplete="off"><button type="button" id="apply-coupon" class="btn btn-outline">Apply</button></div><p id="coupon-message" aria-live="polite"></p></div>
                 <div class="checkout-totals"><div><span>Subtotal</span><strong id="checkout-subtotal">৳0.00</strong></div><div><span>Discount</span><strong id="checkout-discount">−৳0.00</strong></div><div class="grand-total"><span>Total</span><strong id="checkout-total">৳0.00</strong></div></div>
-                <div class="form-group">
-                    <label for="full-name">Full Name</label>
-                    <input type="text" id="full-name" required>
+                <div class="checkout-section-heading">
+                    <span class="checkout-step">01</span>
+                    <div><h3>Delivery information</h3><p>Tell us where your MYSVEX order should arrive.</p></div>
                 </div>
                 <div class="form-group">
-                    <label for="phone">Phone Number</label>
-                    <input type="tel" id="phone" required>
+                    <label for="full-name">Full name <span class="required-mark">*</span></label>
+                    <input type="text" id="full-name" name="full_name" placeholder="আপনার পুরো নাম" autocomplete="name" required>
                 </div>
                 <div class="form-group">
-                    <label for="address">Delivery Address</label>
-                    <input type="text" id="address" required>
+                    <label for="phone">Mobile number <span class="required-mark">*</span></label>
+                    <input type="tel" id="phone" name="phone" placeholder="01XXXXXXXXX" autocomplete="tel" inputmode="tel" pattern="[0-9+\- ]{10,16}" required>
+                    <small class="field-hint">অর্ডার কনফার্ম করার জন্য এই নম্বরে যোগাযোগ করা হবে।</small>
                 </div>
-                <button type="submit" class="btn btn-primary w-100">Confirm Order</button>
+                <div class="form-row checkout-location-row">
+                    <div class="form-group">
+                        <label for="delivery-division">Division / বিভাগ <span class="required-mark">*</span></label>
+                        <select id="delivery-division" name="division" required>
+                            <option value="">বিভাগ নির্বাচন করুন</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="delivery-district">District / জেলা <span class="required-mark">*</span></label>
+                        <select id="delivery-district" name="district" required disabled>
+                            <option value="">আগে বিভাগ নির্বাচন করুন</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="address">Detailed delivery address <span class="required-mark">*</span></label>
+                    <textarea id="address" name="address" rows="3" placeholder="বাসা/ফ্ল্যাট, রোড, এলাকা, থানা বা পরিচিত স্থান লিখুন" autocomplete="street-address" required></textarea>
+                </div>
+                <div class="checkout-delivery-note"><span aria-hidden="true">✦</span><p>সঠিক বিভাগ, জেলা ও ঠিকানা নির্বাচন করুন, যাতে আপনার অর্ডারটি সহজে পৌঁছে দেওয়া যায়।</p></div>
+                <button type="submit" class="btn btn-primary w-100 checkout-confirm-btn"><span>Confirm order</span><span aria-hidden="true">↗</span></button>
+                <p class="checkout-privacy-note">Your details are used only to process your order.</p>
             </form>
         </div>
         <div class="success-view">
@@ -298,7 +343,10 @@
     <div class="admin-panel">
         <div class="admin-sidebar" style="display: none;">
             <div class="admin-sidebar-header">
-                <img src="https://uaverzpqtgxcubqthmnx.supabase.co/storage/v1/object/sign/uploads/5136f065-a2ab-4e69-acf1-f25b643da5f3/ba68adc1-408e-482e-8cf1-8fc05863558e/4dbbd054-04ec-47e4-ad3f-c236814fcd37-file_00000000f2f48210b9d5de90c52b5844.png?token=eyJraWQiOiI5YjgxYmQxYy02MDczLTQ3NDItYTNlNy05YzkzNWFkZTVjMjUiLCJhbGciOiJIUzI1NiJ9.eyJ1cmwiOiJ1cGxvYWRzLzUxMzZmMDY1LWEyYWItNGU2OS1hY2YxLWYyNWI2NDNkYTVmMy9iYTY4YWRjMS00MDhlLTQ4MmUtOGNmMS04ZmMwNTg2MzU1OGUvNGRiYmQwNTQtMDRlYy00N2U0LWFkM2YtYzIzNjgxNGZjZDM3LWZpbGVfMDAwMDAwMDBmMmY0ODIxMGI5ZDVkZTkwYzUyYjU4NDQucG5nIiwic2NvcGUiOiJkb3dubG9hZCIsImlhdCI6MTc5MjUxMDk0MiwiZXhwIjoxNzkyNTE0NTQyfQ.H66TRAWqTm-WEej4t3HD4_xE2eFgMF8Qkmp7enX6hIE" alt="Admin">
+<img
+  src="https://img.sanishtech.com/u/6f847c9d6d410c4d316aa2bd8d0b54c9.jpg"
+  alt="MYSVEX Admin Logo"
+>
                 <span>Atelier Admin</span>
             </div>
             <nav class="admin-nav">
@@ -540,6 +588,51 @@ document.addEventListener('click', function(event) {
     });
   }
 });
+</script>
+<script>
+/* Bangladesh delivery selectors: division -> district. Keeps the existing order form IDs intact. */
+(function () {
+  const divisionSelect = document.getElementById('delivery-division');
+  const districtSelect = document.getElementById('delivery-district');
+  const addressField = document.getElementById('address');
+  const checkoutForm = document.getElementById('checkout-form');
+  if (!divisionSelect || !districtSelect) return;
+
+  const locations = {
+    'ঢাকা': ['ঢাকা','ফরিদপুর','গাজীপুর','গোপালগঞ্জ','কিশোরগঞ্জ','মাদারীপুর','মানিকগঞ্জ','মুন্সিগঞ্জ','নারায়ণগঞ্জ','নরসিংদী','রাজবাড়ী','শরীয়তপুর','টাঙ্গাইল'],
+    'চট্টগ্রাম': ['চট্টগ্রাম','কক্সবাজার','কুমিল্লা','ব্রাহ্মণবাড়িয়া','চাঁদপুর','ফেনী','লক্ষ্মীপুর','নোয়াখালী','খাগড়াছড়ি','রাঙামাটি','বান্দরবান'],
+    'রাজশাহী': ['রাজশাহী','বগুড়া','জয়পুরহাট','নওগাঁ','নাটোর','চাঁপাইনবাবগঞ্জ','পাবনা','সিরাজগঞ্জ'],
+    'খুলনা': ['খুলনা','বাগেরহাট','চুয়াডাঙ্গা','যশোর','ঝিনাইদহ','কুষ্টিয়া','মাগুরা','মেহেরপুর','নড়াইল','সাতক্ষীরা'],
+    'বরিশাল': ['বরিশাল','ভোলা','ঝালকাঠি','পটুয়াখালী','পিরোজপুর','বরগুনা'],
+    'সিলেট': ['সিলেট','হবিগঞ্জ','মৌলভীবাজার','সুনামগঞ্জ'],
+    'রংপুর': ['রংপুর','দিনাজপুর','গাইবান্ধা','কুড়িগ্রাম','লালমনিরহাট','নীলফামারী','পঞ্চগড়','ঠাকুরগাঁও'],
+    'ময়মনসিংহ': ['ময়মনসিংহ','জামালপুর','নেত্রকোণা','শেরপুর']
+  };
+  Object.keys(locations).forEach(function (division) {
+    const option = document.createElement('option'); option.value = division; option.textContent = division;
+    divisionSelect.appendChild(option);
+  });
+  divisionSelect.addEventListener('change', function () {
+    districtSelect.innerHTML = '<option value="">জেলা নির্বাচন করুন</option>';
+    const districts = locations[divisionSelect.value] || [];
+    districts.forEach(function (district) {
+      const option = document.createElement('option'); option.value = district; option.textContent = district;
+      districtSelect.appendChild(option);
+    });
+    districtSelect.disabled = districts.length === 0;
+  });
+  /* Add selected location to the address saved by the existing checkout handler. */
+  if (checkoutForm && addressField) {
+    checkoutForm.addEventListener('submit', function () {
+      const division = divisionSelect.value;
+      const district = districtSelect.value;
+      const prefix = 'বিভাগ: ' + division + ', জেলা: ' + district + '। ';
+      if (division && district && !addressField.value.includes('বিভাগ: ' + division)) {
+        addressField.value = prefix + addressField.value;
+      }
+    }, true);
+  }
+})();
 </script>
 
 </body>
