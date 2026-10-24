@@ -332,3 +332,110 @@ img{max-width:100%}
  .hero-btns .btn{font-size:.62rem}
  .coupon-entry{flex-wrap:wrap}.coupon-entry .btn{width:100%}
 }
+
+
+/* =========================================================
+   MYSVEX SHOP EXPERIENCE UPDATE — Onfire-inspired ecommerce
+   Keeps existing IDs and cart/product interactions intact.
+   ========================================================= */
+:root{
+ --primary:#151515;--ink:#151515;--accent:#b58b50;--gold:#b58b50;
+ --bg:#fff;--bg-alt:#f7f7f5;--text:#222;--text-muted:#737373;
+ --border:#e8e6e2;--accent-light:#fbf7f0;
+}
+body{background:#fff;color:#202020}
+.header{background:rgba(255,255,255,.97);border-bottom:1px solid #efefef;padding:12px 0}
+.header.scrolled{padding:8px 0;background:rgba(255,255,255,.98)}
+.logo-text{font-family:'DM Sans',sans-serif;font-weight:800;letter-spacing:.18em;font-size:21px;color:#151515}
+.nav-link{font-size:11px;letter-spacing:1.1px}
+.hero{background:#f6f4f0}
+.hero:before{content:none}
+.hero-grid{grid-template-columns:.95fr 1.05fr}
+.hero-image img{filter:none}
+.badge:before{content:''}
+.section-header h2,.about-content h2{letter-spacing:-.04em}
+.collection{padding-top:78px}
+.catalogue-tools{max-width:520px;margin:0 auto 24px}
+.search-wrap{display:flex;align-items:center;gap:12px;border:1px solid #e4e1dc;background:#fff;padding:11px 15px;min-height:46px}
+.search-wrap span{font-size:23px;color:#777}
+.search-wrap input{border:0!important;outline:0!important;width:100%;background:transparent!important;font:inherit;font-size:13px!important;padding:0!important}
+.filter-tabs{justify-content:flex-start;overflow-x:auto;flex-wrap:nowrap;padding:2px 0 10px;scrollbar-width:thin}
+.filter-btn{white-space:nowrap;flex:0 0 auto;border:1px solid #e8e5df;padding:10px 15px;background:#fff;color:#555;letter-spacing:.5px;font-size:10px}
+.filter-btn.active{background:#171717;color:#fff;border-color:#171717}
+.product-grid{grid-template-columns:repeat(4,minmax(0,1fr));gap:30px 18px}
+.product-card{border:1px solid #f0efec;transition:transform .25s ease,box-shadow .25s ease}
+.product-card:hover{transform:translateY(-3px);box-shadow:0 12px 32px rgba(0,0,0,.07)}
+.product-img{aspect-ratio:4/4.6;background:#f5f4f1}
+.product-info{padding:15px 14px 18px}
+.product-info h3{font-family:'DM Sans',sans-serif;font-size:14px;font-weight:600;letter-spacing:0;line-height:1.45}
+.product-info p{font-size:12px}
+.price-container{color:#171717;font-size:14px;font-weight:700}
+.price-old{text-decoration:line-through;color:#999;margin-right:8px;font-size:.85em}
+.add-to-cart-btn{border:1px solid #e8e5df}
+.add-to-cart-btn:hover{background:#171717;color:#fff}
+.contact-info-panel,.contact-form-panel{background:#faf9f6}
+.footer{background:#151515}
+.footer-logo img{filter:none;mix-blend-mode:normal}
+.auth-modal-redesign{padding:18px;background:rgba(15,15,15,.68);backdrop-filter:blur(10px)}
+.auth-card-redesign{max-width:900px;width:min(900px,100%);padding:0;display:grid;grid-template-columns:.86fr 1.14fr;overflow:hidden;border-radius:8px;max-height:min(780px,94dvh);overflow-y:auto;background:#fff;box-shadow:0 28px 90px rgba(0,0,0,.28)}
+.auth-card-redesign>.modal-close{top:15px;right:17px;color:#555;background:rgba(255,255,255,.85);width:34px;height:34px;border-radius:50%;font-size:24px;line-height:1}
+.auth-visual{min-height:570px;position:relative;display:flex;flex-direction:column;justify-content:space-between;padding:34px;color:#fff;background:linear-gradient(180deg,rgba(17,15,12,.12),rgba(17,15,12,.78)),url('https://images.unsplash.com/photo-1617038220319-276d3cfab638?auto=format&fit=crop&q=90&w=1000') center/cover}
+.auth-visual:after{content:'';position:absolute;inset:16px;border:1px solid rgba(255,255,255,.35);pointer-events:none}
+.auth-visual-brand{font-family:'DM Sans',sans-serif;font-weight:800;letter-spacing:.2em;font-size:21px;position:relative;z-index:1}
+.auth-visual-brand span{font-size:9px;vertical-align:top;margin-left:3px}
+.auth-visual-copy{position:relative;z-index:1;padding:20px 0}
+.auth-overline{font:700 9px 'DM Sans',sans-serif;letter-spacing:2px;color:#e3c99f}
+.auth-visual-copy h2{font-size:clamp(36px,4vw,53px);font-weight:500;line-height:1.06;letter-spacing:-.04em;margin:18px 0}
+.auth-visual-copy h2 em{font-weight:500;color:#e0c39a}
+.auth-visual-copy p{font-size:13px;max-width:260px;color:#f0ece6;line-height:1.8}
+.auth-visual-bottom{position:relative;z-index:1;font-size:9px;letter-spacing:2.5px;color:#e6d7c3}
+.auth-form-side{padding:48px clamp(24px,4.2vw,54px) 24px;display:flex;flex-direction:column;justify-content:center;min-width:0}
+.auth-form-side .auth-logo-header{margin:0 0 25px;text-align:left}
+.auth-wordmark{font:800 20px 'DM Sans',sans-serif;letter-spacing:.24em;color:#171717}
+.auth-welcome{font:700 9px 'DM Sans',sans-serif;letter-spacing:2px;color:#a5814d;margin-top:8px}
+.auth-notice{font-size:12px;color:#946d36;margin-top:10px}
+.auth-form-side .auth-tabs{border-bottom:1px solid #e9e5df;margin-bottom:25px;gap:24px}
+.auth-form-side .auth-tab{flex:0 0 auto;padding:0 0 13px;font-size:11px;letter-spacing:.5px;text-align:left;border-bottom:2px solid transparent;color:#8a8781}
+.auth-form-side .auth-tab.active{color:#171717;border-color:#b58b50}
+.auth-intro{margin-bottom:23px}
+.auth-intro h3{font-size:28px;line-height:1.2;font-weight:500;letter-spacing:-.03em;margin-bottom:7px}
+.auth-intro p{font-size:12px;color:#777;line-height:1.7}
+.auth-form-side .form-group{margin-bottom:17px}
+.auth-form-side .form-group label{font-size:10px;letter-spacing:.6px;text-transform:none;margin-bottom:7px;color:#383838}
+.auth-form-side .form-group input{height:47px;border:1px solid #dedbd5;border-radius:3px;padding:0 13px;background:#fff;font:13px 'DM Sans',sans-serif;transition:border-color .2s,box-shadow .2s}
+.auth-form-side .form-group input:focus{outline:none;border-color:#b58b50;box-shadow:0 0 0 3px rgba(181,139,80,.11)}
+.password-field{position:relative}
+.password-field input{padding-right:58px!important}
+.password-toggle{position:absolute;right:10px;top:50%;transform:translateY(-50%);border:0;background:none;color:#8c7049;font:700 10px 'DM Sans',sans-serif;cursor:pointer;padding:8px}
+.auth-submit{min-height:48px;justify-content:space-between;padding:0 17px;margin-top:5px;border-radius:3px;font-size:10px}
+.auth-switch-copy{text-align:center;font-size:11px;color:#777;margin:19px 0 0}
+.auth-switch-copy button{border:0;background:none;color:#916b3b;font:700 11px 'DM Sans',sans-serif;text-decoration:underline;text-underline-offset:3px;cursor:pointer}
+.auth-terms{text-align:center;font-size:10px;color:#888;line-height:1.7;margin-top:13px}
+.auth-error-msg{padding:10px 12px;background:#fff2f0;color:#bd3e31;border:1px solid #f3d0cb;border-radius:3px;font-size:11px!important}
+.auth-secure-note{border-top:1px solid #eeeae4;padding-top:17px;margin-top:24px;color:#888;font-size:10px;text-align:center}
+.auth-secure-note span{color:#b58b50;margin-right:5px}
+@media(max-width:1000px){.product-grid{grid-template-columns:repeat(3,minmax(0,1fr))}}
+@media(max-width:760px){
+ .hero-grid{grid-template-columns:1fr}
+ .product-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:18px 12px}
+ .auth-card-redesign{grid-template-columns:1fr;max-width:470px;max-height:94dvh}
+ .auth-visual{min-height:190px;padding:23px 25px;background-position:center 43%}
+ .auth-visual:after{inset:9px}
+ .auth-visual-copy{padding:12px 0 5px}
+ .auth-visual-copy h2{font-size:34px;margin:8px 0}
+ .auth-visual-copy p{display:none}
+ .auth-overline{font-size:8px}
+ .auth-visual-bottom{font-size:8px}
+ .auth-form-side{padding:28px 25px 22px}
+ .auth-form-side .auth-logo-header{margin-bottom:18px}
+ .auth-intro h3{font-size:25px}
+}
+@media(max-width:420px){
+ .auth-modal-redesign{padding:8px}
+ .auth-visual{min-height:160px;padding:18px 20px}
+ .auth-visual-copy h2{font-size:29px}
+ .auth-form-side{padding:23px 19px 18px}
+ .auth-form-side .auth-tabs{margin-bottom:20px}
+ .product-info h3{font-size:13px}
+ .product-info{padding:11px 9px 14px}
+}
