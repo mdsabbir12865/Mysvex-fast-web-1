@@ -687,10 +687,6 @@ document.addEventListener('click', function(event) {
         }
       }
     } catch(err) { console.error('MYSVEX sign out error:', err); }
-    /* Fallback for apps where the Supabase client is module-scoped and not on window. */
-    try {
-      Object.keys(localStorage).filter(function(key){ return /^sb-.+-auth-token$/.test(key) || /supabase.*auth/i.test(key); }).forEach(function(key){ localStorage.removeItem(key); });
-    } catch(storageError) { console.warn('Could not clear persisted auth session:', storageError); }
     const profile=document.getElementById('profile-modal');
     if(profile){profile.classList.remove('active','open');profile.style.display='none';}
     document.querySelectorAll('.modal-overlay').forEach(function(m){ if(m.id==='profile-modal') m.style.display='none'; });
